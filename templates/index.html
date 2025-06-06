@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Grammar Correction AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Writing Assistant</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     textarea::placeholder {
@@ -11,8 +11,8 @@
     }
     textarea:focus {
       outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
     }
     .fade-in {
       animation: fadeIn 0.3s ease-in-out;
@@ -23,127 +23,106 @@
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex items-center justify-center py-10 px-4">
-  <div class="bg-white shadow-xl rounded-2xl p-8 max-w-2xl w-full fade-in">
-    <h1 class="text-3xl font-bold text-center text-blue-700 mb-6">Grammar Correction & Style Improvement AI</h1>
-    
-    <label for="inputText" class="block text-gray-700 font-medium mb-2">Enter your text:</label>
-    <textarea
-      id="inputText"
-      rows="6"
-      placeholder="e.g., He go to school everyday."
-      class="w-full border border-gray-300 rounded-lg px-4 py-3 mb-4 text-gray-700 resize-none focus:ring-2 focus:ring-blue-500 transition"
-    ></textarea>
-
-    <div class="flex flex-col gap-3 sm:flex-row sm:justify-between mb-4">
-      <button
-        onclick="correctText()"
-        class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-      >
-        ✨ Correct Grammar
-      </button>
-      <button
-        onclick="improveTextStyle('formal')"
-        class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition"
-      >
-        📘 Make More Formal
-      </button>
-      <button
-        onclick="improveTextStyle('concise')"
-        class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition"
-      >
-        ✂️ Make More Concise
-      </button>
-      <button
-        onclick="improveTextStyle('vocabulary')"
-        class="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition"
-      >
-        🔤 Improve Vocabulary
-      </button>
+<body class="bg-gray-100 text-gray-900 min-h-screen flex items-center justify-center px-4 py-10">
+  <div class="bg-white w-full max-w-3xl shadow-lg rounded-xl p-8 space-y-6 fade-in">
+    <div class="flex justify-between items-center">
+      <h1 class="text-2xl sm:text-3xl font-bold text-blue-700">AI Writing Assistant</h1>
+      <button id="toggleTheme" class="text-sm px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100">🌙 Dark Mode</button>
     </div>
 
-    <div id="loading" class="text-center my-3 text-blue-600 font-medium hidden">Processing...</div>
-    <div id="error" class="text-center my-3 text-red-500 font-medium hidden"></div>
+    <div>
+      <label for="inputText" class="block mb-2 font-medium">Your Text</label>
+      <textarea
+        id="inputText"
+        rows="5"
+        placeholder="Type or paste your text here..."
+        class="w-full border border-gray-300 rounded-lg px-4 py-3 resize-none"
+      ></textarea>
+    </div>
 
-    <label for="outputText" class="block text-gray-700 font-medium mt-6 mb-2">Result:</label>
-    <textarea
-      id="outputText"
-      rows="6"
-      readonly
-      class="w-full border border-gray-200 bg-gray-100 rounded-lg px-4 py-3 text-gray-800 resize-none cursor-not-allowed"
-    ></textarea>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+      <button onclick="correctText()" class="action-btn bg-blue-600 hover:bg-blue-700">✨ Grammar Fix</button>
+      <button onclick="improveTextStyle('formal')" class="action-btn bg-purple-600 hover:bg-purple-700">📘 Formal</button>
+      <button onclick="improveTextStyle('concise')" class="action-btn bg-green-600 hover:bg-green-700">✂️ Concise</button>
+      <button onclick="improveTextStyle('vocabulary')" class="action-btn bg-orange-500 hover:bg-orange-600">🔤 Vocabulary</button>
+      <button onclick="improveTextStyle('paraphrase')" class="action-btn bg-pink-500 hover:bg-pink-600">🔁 Paraphrase</button>
+    </div>
+
+    <div id="loading" class="text-center text-blue-600 font-medium hidden">Processing...</div>
+    <div id="error" class="text-center text-red-500 font-medium hidden"></div>
+
+    <div>
+      <label for="outputText" class="block mb-2 font-medium">AI Suggestion</label>
+      <textarea
+        id="outputText"
+        rows="5"
+        readonly
+        class="w-full border border-gray-300 bg-gray-100 rounded-lg px-4 py-3 resize-none cursor-not-allowed"
+      ></textarea>
+      <div class="mt-3 flex gap-3">
+        <button onclick="copyToClipboard()" class="text-sm px-4 py-2 bg-gray-800 text-white rounded hover:bg-black">📋 Copy</button>
+        <button onclick="downloadAsTxt()" class="text-sm px-4 py-2 bg-blue-800 text-white rounded hover:bg-blue-900">💾 Download</button>
+      </div>
+    </div>
   </div>
 
   <script>
-    async function correctText() {
-      const input = document.getElementById("inputText").value.trim();
+    const body = document.body;
+    const themeToggle = document.getElementById("toggleTheme");
+    let darkMode = false;
+
+    themeToggle.onclick = () => {
+      darkMode = !darkMode;
+      body.classList.toggle("bg-gray-900");
+      body.classList.toggle("text-white");
+      themeToggle.textContent = darkMode ? "☀️ Light Mode" : "🌙 Dark Mode";
+    };
+
+    function copyToClipboard() {
       const output = document.getElementById("outputText");
-      const loading = document.getElementById("loading");
-      const error = document.getElementById("error");
+      navigator.clipboard.writeText(output.value);
+    }
 
-      output.value = "";
-      error.classList.add("hidden");
+    function downloadAsTxt() {
+      const text = document.getElementById("outputText").value;
+      const blob = new Blob([text], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "output.txt";
+      a.click();
+    }
 
-      if (!input) {
-        error.textContent = "Please enter some text first.";
-        error.classList.remove("hidden");
-        return;
-      }
-
-      loading.classList.remove("hidden");
-
-      try {
-        const response = await fetch("/correct", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: input })
-        });
-
-        const result = await response.json();
-        loading.classList.add("hidden");
-
-        if (response.ok && result.corrected) {
-          output.value = result.corrected;
-        } else {
-          error.textContent = result.error || "Something went wrong.";
-          error.classList.remove("hidden");
-        }
-      } catch (err) {
-        loading.classList.add("hidden");
-        error.textContent = "Network error: " + err.message;
-        error.classList.remove("hidden");
-      }
+    async function correctText() {
+      await processText("/correct", { text: document.getElementById("inputText").value });
     }
 
     async function improveTextStyle(type) {
-      const input = document.getElementById("inputText").value.trim();
+      await processText("/improve", {
+        text: document.getElementById("inputText").value,
+        action: type
+      });
+    }
+
+    async function processText(url, payload) {
       const output = document.getElementById("outputText");
       const loading = document.getElementById("loading");
       const error = document.getElementById("error");
-
       output.value = "";
       error.classList.add("hidden");
-
-      if (!input) {
-        error.textContent = "Please enter some text first.";
-        error.classList.remove("hidden");
-        return;
-      }
-
       loading.classList.remove("hidden");
 
       try {
-        const response = await fetch("/improve", {
+        const response = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: input, action: type })
+          body: JSON.stringify(payload)
         });
 
         const result = await response.json();
         loading.classList.add("hidden");
 
-        if (response.ok && result.result) {
-          output.value = result.result;
+        if (response.ok && (result.corrected || result.result)) {
+          output.value = result.corrected || result.result;
         } else {
           error.textContent = result.error || "Something went wrong.";
           error.classList.remove("hidden");
@@ -155,5 +134,15 @@
       }
     }
   </script>
+
+  <style>
+    .action-btn {
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      color: white;
+      border-radius: 0.5rem;
+      transition: background-color 0.2s;
+    }
+  </style>
 </body>
 </html>

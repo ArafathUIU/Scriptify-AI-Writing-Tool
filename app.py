@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from app.grammar_correction import correct_grammar
 from app.style_improvement import improve_text 
+from app.paraphrasing import paraphrase_text
 
 app = Flask(__name__)
 CORS(app)  # Optional, allows cross-origin requests if needed
@@ -32,6 +33,17 @@ def improve():
             return jsonify({"error": "Text and action are required."}), 400
         improved_text = improve_text(text, action)
         return jsonify({"result": improved_text})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+    
+@app.route("/paraphrase", methods=["POST"])
+def paraphrase():
+    try:
+        data = request.get_json()
+        text = data.get("text", "")
+        result = paraphrase_text(text)
+        return jsonify({"result": result})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
