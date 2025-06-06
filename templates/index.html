@@ -25,7 +25,7 @@
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex items-center justify-center py-10 px-4">
   <div class="bg-white shadow-xl rounded-2xl p-8 max-w-2xl w-full fade-in">
-    <h1 class="text-3xl font-bold text-center text-blue-700 mb-6">Grammar Correction AI</h1>
+    <h1 class="text-3xl font-bold text-center text-blue-700 mb-6">Grammar Correction & Style Improvement AI</h1>
     
     <label for="inputText" class="block text-gray-700 font-medium mb-2">Enter your text:</label>
     <textarea
@@ -35,17 +35,37 @@
       class="w-full border border-gray-300 rounded-lg px-4 py-3 mb-4 text-gray-700 resize-none focus:ring-2 focus:ring-blue-500 transition"
     ></textarea>
 
-    <button
-      onclick="correctText()"
-      class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-    >
-      ✨ Correct Grammar
-    </button>
+    <div class="flex flex-col gap-3 sm:flex-row sm:justify-between mb-4">
+      <button
+        onclick="correctText()"
+        class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+      >
+        ✨ Correct Grammar
+      </button>
+      <button
+        onclick="improveTextStyle('formal')"
+        class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+      >
+        📘 Make More Formal
+      </button>
+      <button
+        onclick="improveTextStyle('concise')"
+        class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+      >
+        ✂️ Make More Concise
+      </button>
+      <button
+        onclick="improveTextStyle('vocabulary')"
+        class="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition"
+      >
+        🔤 Improve Vocabulary
+      </button>
+    </div>
 
-    <div id="loading" class="text-center my-3 text-blue-600 font-medium hidden">Correcting...</div>
+    <div id="loading" class="text-center my-3 text-blue-600 font-medium hidden">Processing...</div>
     <div id="error" class="text-center my-3 text-red-500 font-medium hidden"></div>
 
-    <label for="outputText" class="block text-gray-700 font-medium mt-6 mb-2">Corrected text:</label>
+    <label for="outputText" class="block text-gray-700 font-medium mt-6 mb-2">Result:</label>
     <textarea
       id="outputText"
       rows="6"
@@ -84,6 +104,46 @@
 
         if (response.ok && result.corrected) {
           output.value = result.corrected;
+        } else {
+          error.textContent = result.error || "Something went wrong.";
+          error.classList.remove("hidden");
+        }
+      } catch (err) {
+        loading.classList.add("hidden");
+        error.textContent = "Network error: " + err.message;
+        error.classList.remove("hidden");
+      }
+    }
+
+    async function improveTextStyle(type) {
+      const input = document.getElementById("inputText").value.trim();
+      const output = document.getElementById("outputText");
+      const loading = document.getElementById("loading");
+      const error = document.getElementById("error");
+
+      output.value = "";
+      error.classList.add("hidden");
+
+      if (!input) {
+        error.textContent = "Please enter some text first.";
+        error.classList.remove("hidden");
+        return;
+      }
+
+      loading.classList.remove("hidden");
+
+      try {
+        const response = await fetch("/improve", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: input, action: type })
+        });
+
+        const result = await response.json();
+        loading.classList.add("hidden");
+
+        if (response.ok && result.result) {
+          output.value = result.result;
         } else {
           error.textContent = result.error || "Something went wrong.";
           error.classList.remove("hidden");
