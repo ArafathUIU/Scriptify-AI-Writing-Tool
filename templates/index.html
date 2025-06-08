@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Writing Assistant</title>
+  <title>Scriptify – Write. Rewrite. Scriptify.</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     textarea::placeholder {
@@ -21,25 +21,46 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    .action-btn {
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      color: white;
+      border-radius: 0.5rem;
+      transition: background-color 0.2s;
+    }
   </style>
 </head>
 <body class="bg-gray-100 text-gray-900 min-h-screen flex items-center justify-center px-4 py-10">
   <div class="bg-white w-full max-w-3xl shadow-lg rounded-xl p-8 space-y-6 fade-in">
     <div class="flex justify-between items-center">
-      <h1 class="text-2xl sm:text-3xl font-bold text-blue-700">AI Writing Assistant</h1>
+      <h1 class="text-2xl sm:text-3xl font-bold text-blue-700">✍️ Scriptify</h1>
       <button id="toggleTheme" class="text-sm px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100">🌙 Dark Mode</button>
     </div>
+    <p class="text-sm text-gray-600 italic mb-2">Write. Rewrite. Scriptify.</p>
 
+    <!-- Input Text -->
     <div>
       <label for="inputText" class="block mb-2 font-medium">Your Text</label>
       <textarea
         id="inputText"
         rows="5"
         placeholder="Type or paste your text here..."
-        class="w-full border border-gray-300 rounded-lg px-4 py-3 resize-none"
+        class="w-full border border-gray-300 rounded-lg px-4 py-3 resize-none bg-white"
       ></textarea>
     </div>
 
+    <!-- Custom Instruction -->
+    <div>
+      <label for="customInstruction" class="block mb-2 font-medium">Custom Instruction (Optional)</label>
+      <textarea
+        id="customInstruction"
+        rows="2"
+        placeholder="e.g., Paraphrase this in under 50 words."
+        class="w-full border border-gray-300 rounded-lg px-4 py-2 resize-none bg-white"
+      ></textarea>
+    </div>
+
+    <!-- Action Buttons -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
       <button onclick="correctText()" class="action-btn bg-blue-600 hover:bg-blue-700">✨ Grammar Fix</button>
       <button onclick="improveTextStyle('formal')" class="action-btn bg-purple-600 hover:bg-purple-700">📘 Formal</button>
@@ -48,9 +69,11 @@
       <button onclick="improveTextStyle('paraphrase')" class="action-btn bg-pink-500 hover:bg-pink-600">🔁 Paraphrase</button>
     </div>
 
+    <!-- Feedback -->
     <div id="loading" class="text-center text-blue-600 font-medium hidden">Processing...</div>
     <div id="error" class="text-center text-red-500 font-medium hidden"></div>
 
+    <!-- Output -->
     <div>
       <label for="outputText" class="block mb-2 font-medium">AI Suggestion</label>
       <textarea
@@ -66,6 +89,7 @@
     </div>
   </div>
 
+  <!-- JavaScript -->
   <script>
     const body = document.body;
     const themeToggle = document.getElementById("toggleTheme");
@@ -107,6 +131,13 @@
       const output = document.getElementById("outputText");
       const loading = document.getElementById("loading");
       const error = document.getElementById("error");
+      const instruction = document.getElementById("customInstruction").value.trim();
+
+      // Include custom instruction if available
+      if (instruction) {
+        payload.instruction = instruction;
+      }
+
       output.value = "";
       error.classList.add("hidden");
       loading.classList.remove("hidden");
@@ -134,15 +165,5 @@
       }
     }
   </script>
-
-  <style>
-    .action-btn {
-      padding: 0.5rem 1rem;
-      font-weight: 600;
-      color: white;
-      border-radius: 0.5rem;
-      transition: background-color 0.2s;
-    }
-  </style>
 </body>
 </html>
